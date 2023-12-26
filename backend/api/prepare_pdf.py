@@ -19,7 +19,7 @@ def prepare_pdf_buffer(shopping_list):
         p.drawString(108, p._pagesize[1] - 108, SHOP_LIST_TITLE)
         p.setFont('FreeSans', 12)
         p.drawString(66, p._pagesize[1] - 42, SHOP_LIST_HEAD + f'{page}')
-        filename = os.path.join(settings.MEDIA_ROOT, 'shop_cart.png')
+        filename = os.path.join(settings.BASE_DIR, './recipes/media/shop_cart.png')
         p.drawImage(filename, 450, p._pagesize[1] - 138,
                     width=100, height=100, mask='auto')
 

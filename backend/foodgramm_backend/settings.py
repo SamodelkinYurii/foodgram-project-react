@@ -154,4 +154,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 TTFSearchPath.append(STATIC_ROOT / 'fonts')
-pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
+pdfmetrics.registerFont(TTFont('FreeSans', './recipes/fonts/FreeSans.ttf'))
