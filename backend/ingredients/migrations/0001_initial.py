@@ -4,24 +4,45 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Ingredient',
+            name="Ingredient",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text='Укажите наименование', max_length=200, unique=True, verbose_name='Наименование')),
-                ('measurement_unit', models.CharField(help_text='Укажите единицу измерения', max_length=200, verbose_name='Единица измерения')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Укажите наименование",
+                        max_length=200,
+                        unique=True,
+                        verbose_name="Наименование",
+                    ),
+                ),
+                (
+                    "measurement_unit",
+                    models.CharField(
+                        help_text="Укажите единицу измерения",
+                        max_length=200,
+                        verbose_name="Единица измерения",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Ингридиент',
-                'verbose_name_plural': 'Ингридиенты',
-                'ordering': ('name',),
+                "verbose_name": "Ингридиент",
+                "verbose_name_plural": "Ингридиенты",
+                "ordering": ("name",),
             },
         ),
     ]
