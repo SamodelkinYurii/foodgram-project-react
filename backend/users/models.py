@@ -50,3 +50,29 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class Subscribe(models.Model):
+    """Модель связи пользователей и подписчиков."""
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="user"
+    )
+
+    subscriber = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="subscriber"
+    )
+
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "subscriber"],
+                name="unique_user_subscriber",
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F("subscriber")),
+                name="prevent_subscribe_self",
+            ),
+        ]
