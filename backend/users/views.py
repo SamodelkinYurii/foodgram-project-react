@@ -9,9 +9,9 @@ from .paginations import LimitPageNumberPagination
 from .serializers import UserSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class GetPostUserViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post"]
     pagination_class = PageNumberPagination
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
