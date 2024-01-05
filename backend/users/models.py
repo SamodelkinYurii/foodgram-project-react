@@ -78,4 +78,4 @@ class Subscribe(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.user} {self.subscriber}'
+        return f"{self.user} {self.subscriber}"
