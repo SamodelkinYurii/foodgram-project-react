@@ -76,3 +76,6 @@ class Subscribe(models.Model):
                 name="prevent_subscribe_self",
             ),
         ]
+
+    def __str__(self):
+        return f'{self.user} {self.subscriber}'

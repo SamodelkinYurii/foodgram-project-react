@@ -121,21 +121,32 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-    # "DEFAULT_PERMISSION_CLASSES": [
-    #     "rest_framework.permissions.AllowAny",
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',
     # ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
-    # ],
+    ],
     # "DEFAULT_AUTHENTICATION_CLASSES": [
     #     "rest_framework.authentication.TokenAuthentication",
-    ],
+    # ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 9,
 }
+
+# DJOSER = {
+#     'LOGIN_FIELD':'email',
+#     'USER_CREATE_PASSWORD_RETYPE':True,
+#     'ACTIVATION_URL': '#/users/activate/{uid}/{token}',
+#     'SEND_ACTIVATION_EMAIL': True,
+#     'SERIALIZERS':{
+#         'user_create':'userauth.serializers.UserCreateSerializer',
+#         'user':'userauth.serializers.UserCreateSerializer',
+#         'activation': 'djoser.email.ActivationEmail',
+# }
 
 DJOSER = {
     "HIDE_USERS": False,
@@ -143,9 +154,11 @@ DJOSER = {
     "SERIALIZERS": {
         "user": "users.serializers.UserSerializer",
         "current_user": "users.serializers.UserSerializer",
+        # 'activation': 'djoser.email.ActivationEmail',
     },
     "PERMISSIONS": {
-        "user": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
+        # "user": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
+        'user': ['rest_framework.permissions.IsAuthenticated'],
         "user_list": ["rest_framework.permissions.AllowAny"],
     },
 }
