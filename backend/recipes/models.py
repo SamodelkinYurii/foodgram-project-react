@@ -97,34 +97,34 @@ class Recipe(models.Model):
 #         return f"{self.tag} {self.recipe}"
 
 
-# class IngredientRecipe(models.Model):
-#     recipe = models.ForeignKey(
-#         Recipe,
-#         on_delete=models.CASCADE,
-#         related_name="ingredientrecipe",
-#     )
+class IngredientRecipe(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name="ingredientrecipe",
+    )
 
-#     ingredients = models.ForeignKey(
-#         Ingredient,
-#         on_delete=models.CASCADE,
-#         related_name="ingredientrecipe",
-#     )
+    ingredients = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name="ingredientrecipe",
+    )
 
-#     amount = models.SmallIntegerField(
-#         "Количество",
-#         help_text="Укажите количество ингредиента",
-#         validators=[
-#             MinValueValidator(1, message="Добавьте хотябы 1 ингредиент")
-#         ],
-#     )
+    amount = models.SmallIntegerField(
+        "Количество",
+        help_text="Укажите количество ингредиента",
+        validators=[
+            MinValueValidator(1, message="Добавьте хотябы 1 ингредиент")
+        ],
+    )
 
-#     class Meta:
-#         constraints = [
-#             models.UniqueConstraint(
-#                 fields=["recipe", "ingredients"],
-#                 name="unique_recipe_ingredients",
-#             ),
-#         ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["recipe", "ingredients"],
+                name="unique_recipe_ingredients",
+            ),
+        ]
 
-#     def __str__(self):
-#         return f"{self.ingredients} {self.recipe}"
+    def __str__(self):
+        return f"{self.ingredients} {self.recipe}"
