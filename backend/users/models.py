@@ -73,7 +73,7 @@ class Subscribe(models.Model):
             ),
             models.CheckConstraint(
                 check=~models.Q(user=models.F("subscriber")),
-                name="prevent_subscribe_self",
+                name="Подписаться на самого себя нельзя",
             ),
         ]
 

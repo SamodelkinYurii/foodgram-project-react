@@ -13,7 +13,7 @@ class Recipe(models.Model):
         Tag,
         verbose_name="Теги",
         related_name="recipes",
-        through="TagRecipe",
+        # through="TagRecipe",
     )
 
     author = models.ForeignKey(
@@ -26,7 +26,7 @@ class Recipe(models.Model):
         Ingredient,
         verbose_name="Ингридиенты",
         related_name="recipes",
-        through="IngredientRecipe",
+        # through="IngredientRecipe",
     )
 
     image = models.ImageField(
@@ -68,63 +68,63 @@ class Recipe(models.Model):
         default_related_name = "Рецепты"
         ordering = ("-pub_date",)
 
-    def __str__(self):
-        return self.name
+    # def __str__(self):
+    #     return self.name
 
 
-class TagRecipe(models.Model):
-    tag = models.ForeignKey(
-        Tag,
-        on_delete=models.CASCADE,
-        related_name="tagtrecipe",
-    )
+# class TagRecipe(models.Model):
+#     tag = models.ForeignKey(
+#         Tag,
+#         on_delete=models.CASCADE,
+#         related_name="tagtrecipe",
+#     )
 
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name="tagtrecipe",
-    )
+#     recipe = models.ForeignKey(
+#         Recipe,
+#         on_delete=models.CASCADE,
+#         related_name="tagtrecipe",
+#     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["tag", "recipe"],
-                name="unique_tag_recipe",
-            ),
-        ]
+#     class Meta:
+#         constraints = [
+#             models.UniqueConstraint(
+#                 fields=["tag", "recipe"],
+#                 name="unique_tag_recipe",
+#             ),
+#         ]
 
-    def __str__(self):
-        return f"{self.tag} {self.recipe}"
+#     def __str__(self):
+#         return f"{self.tag} {self.recipe}"
 
 
-class IngredientRecipe(models.Model):
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name="ingredientrecipe",
-    )
+# class IngredientRecipe(models.Model):
+#     recipe = models.ForeignKey(
+#         Recipe,
+#         on_delete=models.CASCADE,
+#         related_name="ingredientrecipe",
+#     )
 
-    ingredients = models.ForeignKey(
-        Ingredient,
-        on_delete=models.CASCADE,
-        related_name="ingredientrecipe",
-    )
+#     ingredients = models.ForeignKey(
+#         Ingredient,
+#         on_delete=models.CASCADE,
+#         related_name="ingredientrecipe",
+#     )
 
-    amount = models.SmallIntegerField(
-        "Количество",
-        help_text="Укажите количество ингредиента",
-        validators=[
-            MinValueValidator(1, message="Добавьте хотябы 1 ингредиент")
-        ],
-    )
+#     amount = models.SmallIntegerField(
+#         "Количество",
+#         help_text="Укажите количество ингредиента",
+#         validators=[
+#             MinValueValidator(1, message="Добавьте хотябы 1 ингредиент")
+#         ],
+#     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["recipe", "ingredients"],
-                name="unique_recipe_ingredients",
-            ),
-        ]
+#     class Meta:
+#         constraints = [
+#             models.UniqueConstraint(
+#                 fields=["recipe", "ingredients"],
+#                 name="unique_recipe_ingredients",
+#             ),
+#         ]
 
-    def __str__(self):
-        return f"{self.ingredients} {self.recipe}"
+#     def __str__(self):
+#         return f"{self.ingredients} {self.recipe}"
