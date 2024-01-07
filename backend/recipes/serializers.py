@@ -46,9 +46,9 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
-    # ingredients = IngredientRecipeSerializer(many=True, source='ingredientrecipe')
     ingredients = serializers.SerializerMethodField()
-    # ingredients = IngredientSerializer(many=True, read_only=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -57,8 +57,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             "tags",
             "author",
             "ingredients",
-            # "is_favorited",
-            # "is_in_shopping_cart",
+            "is_favorited",
+            "is_in_shopping_cart",
             "name",
             "image",
             "text",
@@ -68,24 +68,9 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_ingredients(self, obj):
         ingredients = IngredientRecipe.objects.filter(recipe_id=obj.id)
         return IngredientRecipeSerializer(ingredients, many=True).data
-    # def get_ingredients(self, obj):
-    #     qs = IngredientRecipe.objects.all()
-    #     qs_json = serializers.serialize('json', qs)
 
-    #     return qs_json
-        # ingredients = IngredientRecipe.objects.all()
-        # recipe = obj.id
-        # qs = IngredientRecipe.objects.all()
-        # qs_json = serializers.serialize('json', qs)
-        # # print(obj.ingredientrecipe.filter(recipe=obj.id))
-        # return qs_json
-        # return obj.ingredientrecipe.filter(recipe=obj.id)
-        # user = self.context.get("request").user
-    #     return all(
-    #         (
-    #             (not user.is_anonymous),
-    #             obj.subscriber.filter(
-    #                 user=user.id, subscriber=obj.id
-    #             ).exists(),
-    #         )
-    #     )
+    def get_is_favorited(self, obj):
+        return False
+
+    def get_is_in_shopping_cart(self, obj):
+        return False
