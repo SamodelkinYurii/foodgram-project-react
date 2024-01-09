@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import IngredientRecipe, Recipe
+from .models import IngredientRecipe, Recipe, FavoriteRecipe
+
+@admin.register(FavoriteRecipe)
+class FavoriteRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        "recipe",
+        "favorite",
+    )
 
 
 class IngredientRecipetInline(admin.TabularInline):

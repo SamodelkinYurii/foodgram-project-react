@@ -69,36 +69,12 @@ class Recipe(models.Model):
         default_related_name = "Рецепты"
         ordering = ("-pub_date",)
 
-    # def __str__(self):
-    #     return self.name
-
-
-# class TagRecipe(models.Model):
-#     tag = models.ForeignKey(
-#         Tag,
-#         on_delete=models.CASCADE,
-#         related_name="tagtrecipe",
-#     )
-
-#     recipe = models.ForeignKey(
-#         Recipe,
-#         on_delete=models.CASCADE,
-#         related_name="tagtrecipe",
-#     )
-
-#     class Meta:
-#         constraints = [
-#             models.UniqueConstraint(
-#                 fields=["tag", "recipe"],
-#                 name="unique_tag_recipe",
-#             ),
-#         ]
-
-#     def __str__(self):
-#         return f"{self.tag} {self.recipe}"
+    def __str__(self):
+        return self.name
 
 
 class IngredientRecipe(models.Model):
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -129,3 +105,32 @@ class IngredientRecipe(models.Model):
 
     def __str__(self):
         return f"{self.ingredients} {self.recipe}"
+    
+
+class FavoriteRecipe(models.Model):
+    
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name="favorite",
+        verbose_name="Рецепт",
+    )
+    
+    favorite = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="favorite",
+        verbose_name="Пользователь(добавитель в избранное)",
+    )
+
+    class Meta:
+        verbose_name_plural = "Избранные рецепты"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["recipe", "favorite"],
+                name="unique_recipe_favorite",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.favorite} {self.recipe}"

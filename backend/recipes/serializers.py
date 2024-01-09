@@ -5,8 +5,9 @@ from ingredients.models import Ingredient
 from tags.models import Tag
 from tags.serializers import TagSerializer
 from users.serializers import UserSerializer
+from users.models import User
 
-from .models import IngredientRecipe, Recipe
+from .models import IngredientRecipe, Recipe, FavoriteRecipe
 
 
 # from django.core import serializers
@@ -164,3 +165,30 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         )
 
         return instance
+
+
+class FavoriteRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+
+    
+    def create(self, pk, request):
+        # ingredients_data = validated_data.pop("ingredients")
+        # tags_data = validated_data.pop("tags")
+        # validated_data["author"] = self.context["request"].user
+        # recipe = Recipe.objects.create(**validated_data)
+        # recipe.tags.set(tags_data)
+
+        # for data in ingredients_data:
+        
+        favorit = FavoriteRecipe.objects.create(
+                recipe=Recipe.objects.get(id=pk),
+                favorite=User.objects.get(id=request.user.id),
+            )
+        return favorit
