@@ -1,31 +1,47 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-# from django.core import serializers
 
-from .models import Recipe, IngredientRecipe
 from ingredients.models import Ingredient
+from tags.models import Tag
 from tags.serializers import TagSerializer
 from users.serializers import UserSerializer
-from ingredients.serializers import IngredientSerializer
+
+from .models import IngredientRecipe, Recipe
+
+
+# from django.core import serializers
+
+
+# ---------------------------------------
+class PostIngredientRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        model = IngredientRecipe
+        fields = ("id", "amount")
+
+
+# ---------------------------------------
+
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
-    
-
     id = serializers.PrimaryKeyRelatedField(
-        source='ingredients.id', queryset=Ingredient.objects.all()
+        source="ingredients.id", queryset=Ingredient.objects.all()
     )
     measurement_unit = serializers.CharField(
-        source='ingredients.measurement_unit', read_only=True
+        source="ingredients.measurement_unit", read_only=True
     )
-    name = serializers.CharField(source='ingredients.name', read_only=True)
+    name = serializers.CharField(source="ingredients.name", read_only=True)
 
     class Meta:
         model = IngredientRecipe
         fields = (
-            'id',
-            'name',
-            'measurement_unit',
-            'amount',
+            "id",
+            "name",
+            "measurement_unit",
+            "amount",
         )
+
 
 # class RecipeRetriveSerializer(serializers.ModelSerializer):
 #     """ Сериализатор для чтения рецептов. """
@@ -43,8 +59,9 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 #         model = Recipe
 #         exclude = ('pub_date',)
 
-class RecipeSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True, read_only=True)
+
+class ReadRecipeSerializer(serializers.ModelSerializer):
+    tags = serializers.SerializerMethodField()
     author = UserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
@@ -64,7 +81,12 @@ class RecipeSerializer(serializers.ModelSerializer):
             "text",
             "cooking_time",
         )
-        
+
+    def get_tags(self, obj):
+        recipe = get_object_or_404(Recipe, id=obj.id)
+        tags = recipe.tags.all()
+        return TagSerializer(tags, many=True).data
+
     def get_ingredients(self, obj):
         ingredients = IngredientRecipe.objects.filter(recipe_id=obj.id)
         return IngredientRecipeSerializer(ingredients, many=True).data
@@ -74,3 +96,47 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_in_shopping_cart(self, obj):
         return False
+
+
+class ModRecipeSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True,
+    )
+    ingredients = PostIngredientRecipeSerializer(many=True)
+
+    class Meta:
+        model = Recipe
+        fields = (
+            "id",
+            "tags",
+            "ingredients",
+            "author",
+            "image",
+            "name",
+            "text",
+            "cooking_time",
+        )
+
+    def to_representation(self, instance):
+        request = self.context.get("request")
+        serializer = ReadRecipeSerializer(
+            instance, context={"request": request}
+        )
+        return serializer.data
+
+    def create(self, validated_data):
+        ingredients_data = validated_data.pop("ingredients")
+        tags_data = validated_data.pop("tags")
+        validated_data["author"] = self.context["request"].user
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.tags.set(tags_data)
+        for data in ingredients_data:
+            IngredientRecipe.objects.create(
+                recipe=recipe,
+                ingredients=Ingredient.objects.get(id=data.get("id")),
+                amount=data.get("amount"),
+            )
+        return recipe

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Subscribe, User
+from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -26,4 +26,17 @@ class UserSerializer(serializers.ModelSerializer):
                     user=user.id, subscriber=obj.id
                 ).exists(),
             )
+        )
+
+
+class SubscriptionSerializer(UserSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "email",
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "is_subscribed",
         )

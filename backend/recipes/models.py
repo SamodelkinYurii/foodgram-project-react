@@ -1,4 +1,4 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from ingredients.models import Ingredient
@@ -26,13 +26,14 @@ class Recipe(models.Model):
         Ingredient,
         verbose_name="Ингридиенты",
         related_name="recipes",
-        # through="IngredientRecipe",
+        through="IngredientRecipe",
     )
 
     image = models.ImageField(
         "Фотография",
         help_text="Добавьте фотографию",
         upload_to="recipe/images/",
+        blank=True,
     )
 
     name = models.CharField(
