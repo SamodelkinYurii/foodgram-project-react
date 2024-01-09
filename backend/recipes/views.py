@@ -6,7 +6,7 @@ from .serializers import ModRecipeSerializer, ReadRecipeSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    http_method_names = ["get", "post"]
+    # http_method_names = ["get", "post"]
     pagination_class = PageNumberPagination
     queryset = Recipe.objects.all()
     serializer_class = ReadRecipeSerializer

@@ -133,6 +133,7 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         validated_data["author"] = self.context["request"].user
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags_data)
+
         for data in ingredients_data:
             IngredientRecipe.objects.create(
                 recipe=recipe,
@@ -140,3 +141,26 @@ class ModRecipeSerializer(serializers.ModelSerializer):
                 amount=data.get("amount"),
             )
         return recipe
+
+    def update(self, instance, validated_data):
+        if "ingredients" in validated_data:
+            IngredientRecipe.objects.filter(recipe=instance).delete()
+            ingredients_data = validated_data.pop("ingredients")
+
+            for data in ingredients_data:
+                IngredientRecipe.objects.create(
+                    recipe=instance,
+                    ingredients=Ingredient.objects.get(id=data.get("id")),
+                    amount=data.get("amount"),
+                )
+        if "tags" in validated_data:
+            tags_data = validated_data.pop("tags")
+            instance.tags.set(tags_data)
+        instance.image = validated_data.get("image", instance.image)
+        instance.name = validated_data.get("name", instance.name)
+        instance.text = validated_data.get("text", instance.text)
+        instance.cooking_time = validated_data.get(
+            "cooking_time", instance.cooking_time
+        )
+
+        return instance
