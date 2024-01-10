@@ -5,7 +5,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("recipes", "0003_favoriterecipe_favoriterecipe_unique_recipe_favorite"),
+        (
+            "recipes",
+            "0003_favoriterecipe_favoriterecipe_unique_recipe_favorite",
+        ),
     ]
 
     operations = [

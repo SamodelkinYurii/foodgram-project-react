@@ -75,7 +75,6 @@ class Recipe(models.Model):
 
 
 class IngredientRecipe(models.Model):
-
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -106,17 +105,16 @@ class IngredientRecipe(models.Model):
 
     def __str__(self):
         return f"{self.ingredients} {self.recipe}"
-    
+
 
 class FavoriteRecipe(models.Model):
-    
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         related_name="favorite",
         verbose_name="Рецепт",
     )
-    
+
     favorite = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -136,15 +134,15 @@ class FavoriteRecipe(models.Model):
 
     def __str__(self):
         return f"{self.favorite} {self.recipe}"
-    
+
+
 class ShoppingcartRecipe(models.Model):
-    
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         verbose_name="Рецепт",
     )
-    
+
     shoppingcart = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

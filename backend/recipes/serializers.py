@@ -1,14 +1,18 @@
 from django.shortcuts import get_object_or_404
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from ingredients.models import Ingredient
 from tags.models import Tag
 from tags.serializers import TagSerializer
 from users.serializers import UserSerializer
-from users.models import User
 
-from .models import IngredientRecipe, Recipe, FavoriteRecipe, ShoppingcartRecipe
-from drf_extra_fields.fields import Base64ImageField
+from .models import (
+    FavoriteRecipe,
+    IngredientRecipe,
+    Recipe,
+    ShoppingcartRecipe,
+)
 
 
 # from django.core import serializers
@@ -170,34 +174,38 @@ class ModRecipeSerializer(serializers.ModelSerializer):
 
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = FavoriteRecipe
         fields = (
             "recipe",
             "favorite",
         )
-    
+
     def to_representation(self, instance):
         print(instance)
-        print(self.context['request'])
-        return ViewFavoriteShoppingcartRecipeSerializer(instance.recipe, context=self.context).data
+        print(self.context["request"])
+        return ViewFavoriteShoppingcartRecipeSerializer(
+            instance.recipe, context=self.context
+        ).data
+
 
 class ShoppingcartRecipeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ShoppingcartRecipe
         fields = (
             "recipe",
             "shoppingcart",
         )
-    
+
     def to_representation(self, instance):
         print(instance)
-        print(self.context['request'])
-        return ViewFavoriteShoppingcartRecipeSerializer(instance.recipe, context=self.context).data
+        print(self.context["request"])
+        return ViewFavoriteShoppingcartRecipeSerializer(
+            instance.recipe, context=self.context
+        ).data
+
 
 class ViewFavoriteShoppingcartRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+        fields = ("id", "name", "image", "cooking_time")

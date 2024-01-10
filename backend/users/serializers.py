@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import User, Subscribe
+from .models import Subscribe, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -43,8 +43,6 @@ class SubscriptionSerializer(UserSerializer):
 
 
 class SubscribeSerializer(UserSerializer):
-
-    
     class Meta:
         model = Subscribe
         fields = (
