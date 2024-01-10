@@ -7,13 +7,15 @@ click==8.1.7
 colorama==0.4.6
 cryptography==41.0.7
 defusedxml==0.8.0rc2
-Django==3.2.16
+Django==4.2.9
 django-colorfield==0.11.0
 django-filter==23.5
 django-templated-mail==1.1.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
 djoser==2.2.2
+drf-extra-fields==3.7.0
+filetype==1.2.0
 flake8==6.1.0
 idna==3.6
 isort==5.13.2
@@ -38,4 +40,5 @@ social-auth-core==4.5.1
 sqlparse==0.4.4
 tomli==2.0.1
 typing_extensions==4.9.0
+tzdata==2023.4
 urllib3==2.1.0

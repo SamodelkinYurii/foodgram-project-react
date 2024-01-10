@@ -7,7 +7,8 @@ from tags.serializers import TagSerializer
 from users.serializers import UserSerializer
 from users.models import User
 
-from .models import IngredientRecipe, Recipe, FavoriteRecipe
+from .models import IngredientRecipe, Recipe, FavoriteRecipe, ShoppingcartRecipe
+from drf_extra_fields.fields import Base64ImageField
 
 
 # from django.core import serializers
@@ -107,6 +108,7 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         many=True,
     )
     ingredients = PostIngredientRecipeSerializer(many=True)
+    image = Base64ImageField(required=True)
 
     class Meta:
         model = Recipe
@@ -174,6 +176,20 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         fields = (
             "recipe",
             "favorite",
+        )
+    
+    def to_representation(self, instance):
+        print(instance)
+        print(self.context['request'])
+        return ViewFavoriteShoppingcartRecipeSerializer(instance.recipe, context=self.context).data
+
+class ShoppingcartRecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ShoppingcartRecipe
+        fields = (
+            "recipe",
+            "shoppingcart",
         )
     
     def to_representation(self, instance):

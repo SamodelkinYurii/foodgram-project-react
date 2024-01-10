@@ -1,12 +1,19 @@
 from django.contrib import admin
 
-from .models import IngredientRecipe, Recipe, FavoriteRecipe
+from .models import IngredientRecipe, Recipe, FavoriteRecipe, ShoppingcartRecipe
 
 @admin.register(FavoriteRecipe)
 class FavoriteRecipeAdmin(admin.ModelAdmin):
     list_display = (
         "recipe",
         "favorite",
+    )
+
+@admin.register(ShoppingcartRecipe)
+class ShoppingcartRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        "recipe",
+        "shoppingcart",
     )
 
 
