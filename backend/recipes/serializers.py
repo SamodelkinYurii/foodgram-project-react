@@ -176,19 +176,3 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
             'image',
             'cooking_time',
         )
-
-    
-    def create(self, pk, request):
-        # ingredients_data = validated_data.pop("ingredients")
-        # tags_data = validated_data.pop("tags")
-        # validated_data["author"] = self.context["request"].user
-        # recipe = Recipe.objects.create(**validated_data)
-        # recipe.tags.set(tags_data)
-
-        # for data in ingredients_data:
-        
-        favorit = FavoriteRecipe.objects.create(
-                recipe=Recipe.objects.get(id=pk),
-                favorite=User.objects.get(id=request.user.id),
-            )
-        return favorit

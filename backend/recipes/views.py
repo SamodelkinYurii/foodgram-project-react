@@ -5,6 +5,7 @@ from rest_framework import serializers
 from .models import Recipe
 from .serializers import ModRecipeSerializer, ReadRecipeSerializer, FavoriteRecipeSerializer
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -23,9 +24,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True,
         # permission_classes=[permissions.IsAuthenticated],
     )
-    def favorite(self, request, pk):
-        context = {'request': request}
-        data = {'user': request.user.id, 'recipe': pk}
-        serialized = serializers(data=data, context=context)
-        serialized.is_valid(raise_exception=True)
-        serialized.save()
+    def favorite(self, request):
+        serializer = FavoriteRecipeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"recipe": serializer.data})
+
