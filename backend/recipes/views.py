@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
-from rest_framework import serializers
+from rest_framework import serializers, permissions, status
 
-from .models import Recipe
+from .models import Recipe, FavoriteRecipe
 from .serializers import ModRecipeSerializer, ReadRecipeSerializer, FavoriteRecipeSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -19,14 +19,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return ReadRecipeSerializer
         return ModRecipeSerializer
 
-    @action(
-        methods=['POST', 'DELETE'],
-        detail=True,
-        # permission_classes=[permissions.IsAuthenticated],
-    )
-    def favorite(self, request):
-        serializer = FavoriteRecipeSerializer(data=request.data)
+    @action(detail=True, methods=('POST',),
+            permission_classes=[permissions.IsAuthenticated])
+    def favorite(self, request, pk):
+        current_user = self.request.user
+        serializer = FavoriteRecipeSerializer(
+            data={'recipe': pk, 'favorite': current_user.id},
+            context={'request': request},
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"recipe": serializer.data})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk):
+        current_user = self.request.user
+        check_favorite = FavoriteRecipe.objects.filter(recipe=pk, favorite=current_user.id)
+        if check_favorite.exists():
+            check_favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
 

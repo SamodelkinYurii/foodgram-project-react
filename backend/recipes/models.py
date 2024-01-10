@@ -65,8 +65,9 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = "Рецепт"
-        default_related_name = "Рецепты"
+        verbose_name = "Рецепт"
+        verbose_name_plural = "Рецепты"
+        # default_related_name = "Рецепты"
         ordering = ("-pub_date",)
 
     def __str__(self):
@@ -124,6 +125,7 @@ class FavoriteRecipe(models.Model):
     )
 
     class Meta:
+        verbose_name = "Избранный рецепт"
         verbose_name_plural = "Избранные рецепты"
         constraints = [
             models.UniqueConstraint(

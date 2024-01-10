@@ -56,11 +56,17 @@ class Subscribe(models.Model):
     """Модель связи пользователей и подписчиков."""
 
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="user"
+        User,
+        on_delete=models.CASCADE,
+        related_name="user",
+        verbose_name="Текущий пользователь",
     )
 
     subscriber = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="subscriber"
+        User,
+        on_delete=models.CASCADE,
+        related_name="subscriber",
+        verbose_name="Пользователь на которого сделана подписка",
     )
 
     class Meta:

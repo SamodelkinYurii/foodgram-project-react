@@ -168,11 +168,20 @@ class ModRecipeSerializer(serializers.ModelSerializer):
 
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FavoriteRecipe
+        fields = (
+            "recipe",
+            "favorite",
+        )
+    
+    def to_representation(self, instance):
+        print(instance)
+        print(self.context['request'])
+        return ViewFavoriteShoppingcartRecipeSerializer(instance.recipe, context=self.context).data
+
+class ViewFavoriteShoppingcartRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time',
-        )
+        fields = ('id', 'name', 'image', 'cooking_time')
