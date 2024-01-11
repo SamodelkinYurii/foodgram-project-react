@@ -136,7 +136,6 @@ class ModRecipeSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if instance.author != self.context['request'].user:
             raise AuthorPermissionDenied()
-            # raise serializers.ValidationError("Изменять запись может только автор")
         if "ingredients" in validated_data:
             IngredientRecipe.objects.filter(recipe=instance).delete()
             ingredients_data = validated_data.pop("ingredients")
