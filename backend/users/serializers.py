@@ -30,15 +30,34 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(UserSerializer):
+    id = serializers.PrimaryKeyRelatedField(
+        source="subscriber.id", queryset=User.objects.all()
+    )
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
+    email = serializers.EmailField(source="subscriber.email", read_only=True)
+    first_name = serializers.ReadOnlyField(
+        source="subscriber.first_name",
+    )
+    last_name = serializers.ReadOnlyField(
+        source="subscriber.last_name",
+    )
+    username = serializers.ReadOnlyField(
+        source="subscriber.username",
+    )
+
     class Meta:
-        model = User
+        model = Subscribe
         fields = (
             "email",
             "id",
             "username",
             "first_name",
             "last_name",
-            "is_subscribed",
+            # 'is_subscribed',
+            # 'recipes',
+            # 'recipes_count',
         )
 
 

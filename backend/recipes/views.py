@@ -16,10 +16,8 @@ from .serializers import (
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    # http_method_names = ["get", "post"]
     pagination_class = LimitOffsetPagination
     queryset = Recipe.objects.all()
-    # serializer_class = ReadRecipeSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     permission_classes = (IsAuthorOrReadOnly,)
@@ -33,10 +31,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=("POST",),
         permission_classes=[permissions.IsAuthenticated],
-        # permission_classes=[IsAuthorOrReadOnly],
     )
     def favorite(self, request, pk):
         current_user = self.request.user
+        check_favorite = FavoriteRecipe.objects.filter(recipe=pk, favorite=current_user)
+        if check_favorite.exists():
+            return Response(
+                {"detail": "Вы уже добавили рецепт в избранное"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         serializer = FavoriteRecipeSerializer(
             data={"recipe": pk, "favorite": current_user.id},
             context={"request": request},
@@ -47,22 +50,34 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
+        check_recipe = Recipe.objects.filter(id=pk)
         current_user = self.request.user
         check_favorite = FavoriteRecipe.objects.filter(
             recipe=pk, favorite=current_user.id
         )
+        if not check_recipe.exists():
+            return Response(
+                {"detail": "Нельзя убрать из избранного несуществующий рецепт"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         if check_favorite.exists():
             check_favorite.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({"detail": "Рецепт удален из избранного"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Рецепта нет в избранном"}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=True,
         methods=("POST",),
-        # permission_classes=[IsAuthorOrReadOnly],
         permission_classes=[permissions.IsAuthenticated],
     )
     def shopping_cart(self, request, pk):
         current_user = self.request.user
+        check_shopping_car = ShoppingcartRecipe.objects.filter(recipe=pk, shoppingcart=current_user)
+        if check_shopping_car.exists():
+            return Response(
+                {"detail": "Вы уже добавили рецепт в корзину"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         serializer = ShoppingcartRecipeSerializer(
             data={"recipe": pk, "shoppingcart": current_user.id},
             context={"request": request},
@@ -73,10 +88,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
+        check_recipe = Recipe.objects.filter(id=pk)
         current_user = self.request.user
         check_favorite = ShoppingcartRecipe.objects.filter(
             recipe=pk, shoppingcart=current_user.id
         )
+        if not check_recipe.exists():
+            return Response(
+                {"detail": "Нельзя убрать из корзины несуществующий рецепт"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         if check_favorite.exists():
             check_favorite.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({"detail": "Рецепт удален из корзины"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Рецепта нет в корзине"}, status=status.HTTP_400_BAD_REQUEST)
