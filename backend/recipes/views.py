@@ -12,6 +12,7 @@ from .serializers import (
     ReadRecipeSerializer,
     ShoppingcartRecipeSerializer,
 )
+from .permissions import IsAuthorOrReadOnly
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -21,6 +22,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     # serializer_class = ReadRecipeSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -31,6 +33,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=("POST",),
         permission_classes=[permissions.IsAuthenticated],
+        # permission_classes=[IsAuthorOrReadOnly],
     )
     def favorite(self, request, pk):
         current_user = self.request.user
@@ -55,6 +58,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=("POST",),
+        # permission_classes=[IsAuthorOrReadOnly],
         permission_classes=[permissions.IsAuthenticated],
     )
     def shopping_cart(self, request, pk):

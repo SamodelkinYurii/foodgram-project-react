@@ -6,6 +6,7 @@ from ingredients.models import Ingredient
 from tags.models import Tag
 from tags.serializers import TagSerializer
 from users.serializers import UserSerializer
+from .exceptions import AuthorPermissionDenied
 
 from .models import (
     FavoriteRecipe,
@@ -47,24 +48,6 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
             "measurement_unit",
             "amount",
         )
-
-
-# class RecipeRetriveSerializer(serializers.ModelSerializer):
-#     """ Сериализатор для чтения рецептов. """
-
-#     image = Base64ImageField()
-#     tags = TagSerializer(many=True)
-#     author = UserSerializer(read_only=True,
-#                             default=serializers.CurrentUserDefault())
-#     ingredients = IngredientRetriveSerializer(many=True,
-#                                               source='ingredientrecipe')
-#     is_favorited = serializers.BooleanField(read_only=True, default=0)
-#     is_in_shopping_cart = serializers.BooleanField(read_only=True, default=0)
-
-#     class Meta:
-#         model = Recipe
-#         exclude = ('pub_date',)
-
 
 class ReadRecipeSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
@@ -135,6 +118,7 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def create(self, validated_data):
+        # self.custom_validated_data(validated_data)
         ingredients_data = validated_data.pop("ingredients")
         tags_data = validated_data.pop("tags")
         validated_data["author"] = self.context["request"].user
@@ -150,6 +134,9 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
+        if instance.author != self.context['request'].user:
+            raise AuthorPermissionDenied()
+            # raise serializers.ValidationError("Изменять запись может только автор")
         if "ingredients" in validated_data:
             IngredientRecipe.objects.filter(recipe=instance).delete()
             ingredients_data = validated_data.pop("ingredients")
@@ -169,9 +156,26 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get(
             "cooking_time", instance.cooking_time
         )
-
         return instance
 
+    def validate(self, data):
+        
+        tags = data.get('tags')
+        if not data.get('ingredients'):
+            raise serializers.ValidationError("Поле ingredients не может быть пустым")
+        if not tags:
+            raise serializers.ValidationError("Поле tags не может быть пустым")
+        if not data.get('image'):
+            raise serializers.ValidationError("Поле image не может быть пустым")
+        if len(tags) != len(set(tags)):
+            raise serializers.ValidationError("Поле tags не может дублироватся")
+        ingredients = [ingredient.get('id') for ingredient in data.get('ingredients')]
+        if len(ingredients) != len(set(ingredients)):
+            raise serializers.ValidationError("Поле ingredients не может дублироватся")
+        ingredients_bd_list = list(Ingredient.objects.all().values_list('id', flat=True))
+        if not all(x in ingredients_bd_list for x in ingredients):
+            raise serializers.ValidationError("Добавте ingredients в базу")
+        return data
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):
     class Meta:

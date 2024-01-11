@@ -18,6 +18,12 @@ class UserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    def get_permissions(self):
+        if self.action == 'me':
+            return [permissions.IsAuthenticated()]
+        return super().get_permissions()
+
+
     @action(
         detail=True,
         methods=("GET",),

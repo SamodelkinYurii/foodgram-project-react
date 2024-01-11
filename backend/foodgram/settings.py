@@ -160,8 +160,10 @@ DJOSER = {
         # 'activation': 'djoser.email.ActivationEmail',
     },
     "PERMISSIONS": {
-        # "user": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
-        "user": ["rest_framework.permissions.IsAuthenticated"],
-        "user_list": ["rest_framework.permissions.AllowAny"],
+        # "user_create": ["rest_framework.permissions.AllowAny"],
+        # "user_me": ["rest_framework.permissions.IsAuthenticated"],
+        "user": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
+        "user_list": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
+        # "user_delete": ["rest_framework.permissions.IsAuthenticated"],
     },
 }
