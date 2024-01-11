@@ -51,11 +51,7 @@ class SubscribeSerializer(UserSerializer):
         )
 
     def validate(self, data):
-        print(data['user'])
-        print(data['subscriber'])
-        request = self.context.get('request')
-        # print(data['author'])
-        if data['user'] == data['subscriber']:
+        if data["user"] == data["subscriber"]:
             raise serializers.ValidationError("Нельзя подписатся на себя")
 
         return data

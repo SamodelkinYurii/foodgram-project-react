@@ -6,13 +6,13 @@ from rest_framework.response import Response
 
 from .filters import RecipeFilter
 from .models import FavoriteRecipe, Recipe, ShoppingcartRecipe
+from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     FavoriteRecipeSerializer,
     ModRecipeSerializer,
     ReadRecipeSerializer,
     ShoppingcartRecipeSerializer,
 )
-from .permissions import IsAuthorOrReadOnly
 
 
 class RecipeViewSet(viewsets.ModelViewSet):

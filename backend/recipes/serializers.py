@@ -6,8 +6,8 @@ from ingredients.models import Ingredient
 from tags.models import Tag
 from tags.serializers import TagSerializer
 from users.serializers import UserSerializer
-from .exceptions import AuthorPermissionDenied
 
+from .exceptions import AuthorPermissionDenied
 from .models import (
     FavoriteRecipe,
     IngredientRecipe,
@@ -48,6 +48,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
             "measurement_unit",
             "amount",
         )
+
 
 class ReadRecipeSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
@@ -134,7 +135,7 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        if instance.author != self.context['request'].user:
+        if instance.author != self.context["request"].user:
             raise AuthorPermissionDenied()
         if "ingredients" in validated_data:
             IngredientRecipe.objects.filter(recipe=instance).delete()
@@ -158,23 +159,35 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, data):
-        
-        tags = data.get('tags')
-        if not data.get('ingredients'):
-            raise serializers.ValidationError("Поле ingredients не может быть пустым")
+        tags = data.get("tags")
+        if not data.get("ingredients"):
+            raise serializers.ValidationError(
+                "Поле ingredients не может быть пустым"
+            )
         if not tags:
             raise serializers.ValidationError("Поле tags не может быть пустым")
-        if not data.get('image'):
-            raise serializers.ValidationError("Поле image не может быть пустым")
+        if not data.get("image"):
+            raise serializers.ValidationError(
+                "Поле image не может быть пустым"
+            )
         if len(tags) != len(set(tags)):
-            raise serializers.ValidationError("Поле tags не может дублироватся")
-        ingredients = [ingredient.get('id') for ingredient in data.get('ingredients')]
+            raise serializers.ValidationError(
+                "Поле tags не может дублироватся"
+            )
+        ingredients = [
+            ingredient.get("id") for ingredient in data.get("ingredients")
+        ]
         if len(ingredients) != len(set(ingredients)):
-            raise serializers.ValidationError("Поле ingredients не может дублироватся")
-        ingredients_bd_list = list(Ingredient.objects.all().values_list('id', flat=True))
+            raise serializers.ValidationError(
+                "Поле ingredients не может дублироватся"
+            )
+        ingredients_bd_list = list(
+            Ingredient.objects.all().values_list("id", flat=True)
+        )
         if not all(x in ingredients_bd_list for x in ingredients):
             raise serializers.ValidationError("Добавте ingredients в базу")
         return data
+
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):
     class Meta:

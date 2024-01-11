@@ -19,10 +19,9 @@ class UserViewSet(UserViewSet):
     serializer_class = UserSerializer
 
     def get_permissions(self):
-        if self.action == 'me':
+        if self.action == "me":
             return [permissions.IsAuthenticated()]
         return super().get_permissions()
-
 
     @action(
         detail=True,
@@ -44,9 +43,15 @@ class UserViewSet(UserViewSet):
             user=current_user, subscriber=id
         )
         if check_subscribe.exists():
-            return Response({"detail": "Вы уже подписанны на данного автора"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Вы уже подписанны на данного автора"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if not check_user.exists():
-            return Response({"detail": "Нельзя подписатся на не существующего автора"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Нельзя подписатся на не существующего автора"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         current_user = self.request.user
         serializer = SubscribeSerializer(
             data={"user": current_user.id, "subscriber": id},
