@@ -22,6 +22,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
     permission_classes = (IsAuthorOrReadOnly,)
 
+    def get_queryset(self):
+        is_favorited_param = self.request.query_params.get(
+            "is_favorited", None
+        )
+        is_in_shopping_cart = self.request.query_params.get(
+            "is_in_shopping_cart", None
+        )
+        current_user = self.request.user
+        if all(
+            (is_favorited_param == "1", self.request.user.is_authenticated)
+        ):
+            return Recipe.objects.filter(favorite__favorite=current_user.id)
+        elif all(
+            (is_in_shopping_cart == "1", self.request.user.is_authenticated)
+        ):
+            return Recipe.objects.filter(
+                shopping_cart__shoppingcart=current_user.id
+            )
+        return super().get_queryset()
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadRecipeSerializer
@@ -34,7 +54,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         current_user = self.request.user
-        check_favorite = FavoriteRecipe.objects.filter(recipe=pk, favorite=current_user)
+        check_favorite = FavoriteRecipe.objects.filter(
+            recipe=pk, favorite=current_user
+        )
         if check_favorite.exists():
             return Response(
                 {"detail": "Вы уже добавили рецепт в избранное"},
@@ -57,13 +79,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         if not check_recipe.exists():
             return Response(
-                {"detail": "Нельзя убрать из избранного несуществующий рецепт"},
+                {
+                    "detail": "Нельзя убрать из избранного несуществующий рецепт"
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         if check_favorite.exists():
             check_favorite.delete()
-            return Response({"detail": "Рецепт удален из избранного"}, status=status.HTTP_204_NO_CONTENT)
-        return Response({"detail": "Рецепта нет в избранном"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Рецепт удален из избранного"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        return Response(
+            {"detail": "Рецепта нет в избранном"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     @action(
         detail=True,
@@ -72,7 +102,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, pk):
         current_user = self.request.user
-        check_shopping_car = ShoppingcartRecipe.objects.filter(recipe=pk, shoppingcart=current_user)
+        check_shopping_car = ShoppingcartRecipe.objects.filter(
+            recipe=pk, shoppingcart=current_user
+        )
         if check_shopping_car.exists():
             return Response(
                 {"detail": "Вы уже добавили рецепт в корзину"},
@@ -100,5 +132,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
         if check_favorite.exists():
             check_favorite.delete()
-            return Response({"detail": "Рецепт удален из корзины"}, status=status.HTTP_204_NO_CONTENT)
-        return Response({"detail": "Рецепта нет в корзине"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Рецепт удален из корзины"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        return Response(
+            {"detail": "Рецепта нет в корзине"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

@@ -11,9 +11,10 @@ class RecipeFilter(filters.FilterSet):
         field_name="tags__slug",
         to_field_name="slug",
     )
-    is_favorited = filters.CharFilter(field_name='is_favorited')
-    is_in_shopping_cart = filters.CharFilter(field_name='is_in_shopping_cart')
 
     class Meta:
         model = Recipe
-        fields = ("author", "tags", )
+        fields = (
+            "author",
+            "tags",
+        )

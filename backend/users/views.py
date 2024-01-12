@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import permissions, status
 from rest_framework.decorators import action
@@ -22,22 +21,6 @@ class UserViewSet(UserViewSet):
         if self.action == "me":
             return [permissions.IsAuthenticated()]
         return super().get_permissions()
-
-    @action(
-        detail=True,
-        methods=("GET",),
-        permission_classes=[permissions.IsAuthenticated],
-    )
-    def subscriptions(self, request):
-        current_user = get_object_or_404(User, username=request.user)
-        subscribtions_list = current_user.user.all()
-        page = self.paginate_queryset(subscribtions_list)
-        serializer = SubscriptionSerializer(
-            page,
-            many=True,
-            context={"request": request},
-        )
-        return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
@@ -83,5 +66,25 @@ class UserViewSet(UserViewSet):
         if check_user.exists():
             if check_subscribe.exists():
                 check_subscribe.delete()
-                return Response({"detail": "Вы отписались от автора"}, status=status.HTTP_204_NO_CONTENT)
-            return  Response({"detail": "Вы уже отписаны от автора"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"detail": "Вы отписались от автора"},
+                    status=status.HTTP_204_NO_CONTENT,
+                )
+            return Response(
+                {"detail": "Вы уже отписаны от автора"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    @action(
+        detail=False,
+        methods=("GET",),
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def subscriptions(self, request):
+        current_user = self.request.user
+        queryset = User.objects.filter(subscriber__user=current_user)
+        page = self.paginate_queryset(queryset)
+        serializer = SubscriptionSerializer(
+            page, many=True, context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)

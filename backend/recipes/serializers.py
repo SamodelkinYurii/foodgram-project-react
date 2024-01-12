@@ -16,19 +16,12 @@ from .models import (
 )
 
 
-# from django.core import serializers
-
-
-# ---------------------------------------
 class PostIngredientRecipeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
 
     class Meta:
         model = IngredientRecipe
         fields = ("id", "amount")
-
-
-# ---------------------------------------
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
@@ -84,13 +77,17 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         current_user = self.context["request"].user
         if not current_user.is_anonymous:
-            return obj.favorite.filter(recipe=obj.id, favorite=current_user).exists()
+            return obj.favorite.filter(
+                recipe=obj.id, favorite=current_user
+            ).exists()
         return False
 
     def get_is_in_shopping_cart(self, obj):
         current_user = self.context["request"].user
         if not current_user.is_anonymous:
-            return obj.shopping_cart.filter(recipe=obj.id, shoppingcart=current_user).exists()
+            return obj.shopping_cart.filter(
+                recipe=obj.id, shoppingcart=current_user
+            ).exists()
         return False
 
 
@@ -125,7 +122,6 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def create(self, validated_data):
-        # self.custom_validated_data(validated_data)
         ingredients_data = validated_data.pop("ingredients")
         tags_data = validated_data.pop("tags")
         validated_data["author"] = self.context["request"].user
@@ -204,9 +200,7 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance):
-        print(instance)
-        print(self.context["request"])
-        return ViewFavoriteShoppingcartRecipeSerializer(
+        return ViewRecipeSerializerViewRecipeSerializer(
             instance.recipe, context=self.context
         ).data
 
@@ -220,14 +214,19 @@ class ShoppingcartRecipeSerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance):
-        print(instance)
-        print(self.context["request"])
-        return ViewFavoriteShoppingcartRecipeSerializer(
+        return ViewRecipeSerializerViewRecipeSerializer(
             instance.recipe, context=self.context
         ).data
 
 
-class ViewFavoriteShoppingcartRecipeSerializer(serializers.ModelSerializer):
+class ViewRecipeSerializerViewRecipeSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
     class Meta:
         model = Recipe
-        fields = ("id", "name", "image", "cooking_time")
+        fields = (
+            "id",
+            "name",
+            "image",
+            "cooking_time",
+        )
