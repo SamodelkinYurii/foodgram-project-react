@@ -79,9 +79,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         if not check_recipe.exists():
             return Response(
-                {
-                    "detail": "Нельзя убрать из избранного несуществующий рецепт"
-                },
+                {"detail": "Несуществующий рецепт"},
                 status=status.HTTP_404_NOT_FOUND,
             )
         if check_favorite.exists():

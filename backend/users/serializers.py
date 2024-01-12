@@ -46,9 +46,7 @@ class SubscribeSerializer(UserSerializer):
         return data
 
     def to_representation(self, instance):
-        return SubscriptionSerializer(
-            instance.user, context=self.context
-        ).data
+        return SubscriptionSerializer(instance.user, context=self.context).data
 
 
 class SubscriptionSerializer(UserSerializer):
