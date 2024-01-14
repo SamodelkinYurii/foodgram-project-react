@@ -10,9 +10,11 @@ load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = os.getenv("DEBUG")
+DEBUG = os.getenv("DEBUG", False) == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOST", default="127.0.0.1, localhost"
+).split(", ")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -64,19 +66,25 @@ TEMPLATES = [
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if os.getenv("USE_SQLITE", "True") == "True":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("POSTGRES_DB", "django"),
+            "USER": os.getenv("POSTGRES_USER", "django"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", ""),
+            "PORT": os.getenv("DB_PORT", 5432),
+        }
+    }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -94,9 +102,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = "ru-ru"
 
 TIME_ZONE = "Europe/Moscow"
@@ -107,23 +112,19 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = "/static/"
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+STATIC_ROOT = BASE_DIR / "static"
+
+MEDIA_URL = "/media/"
+
+MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ],
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend"
     ],
@@ -140,16 +141,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
-# DJOSER = {
-#     'LOGIN_FIELD':'email',
-#     'USER_CREATE_PASSWORD_RETYPE':True,
-#     'ACTIVATION_URL': '#/users/activate/{uid}/{token}',
-#     'SEND_ACTIVATION_EMAIL': True,
-#     'SERIALIZERS':{
-#         'user_create':'userauth.serializers.UserCreateSerializer',
-#         'user':'userauth.serializers.UserCreateSerializer',
-#         'activation': 'djoser.email.ActivationEmail',
-# }
 
 DJOSER = {
     "HIDE_USERS": False,
@@ -157,13 +148,9 @@ DJOSER = {
     "SERIALIZERS": {
         "user": "users.serializers.UserSerializer",
         "current_user": "users.serializers.UserSerializer",
-        # 'activation': 'djoser.email.ActivationEmail',
     },
     "PERMISSIONS": {
-        # "user_create": ["rest_framework.permissions.AllowAny"],
-        # "user_me": ["rest_framework.permissions.IsAuthenticated"],
         "user": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
         "user_list": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
-        # "user_delete": ["rest_framework.permissions.IsAuthenticated"],
     },
 }

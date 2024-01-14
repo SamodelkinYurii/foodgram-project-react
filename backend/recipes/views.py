@@ -1,11 +1,24 @@
+import io
+import os
+
+from django.db.models import Sum
+from django.http import FileResponse, HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from reportlab.pdfbase import pdfmetrics, ttfonts
+from reportlab.pdfgen import canvas
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
+from reportlab.lib.pagesizes import A4
 
 from .filters import RecipeFilter
-from .models import FavoriteRecipe, Recipe, ShoppingcartRecipe
+from .models import (
+    FavoriteRecipe,
+    IngredientRecipe,
+    Recipe,
+    ShoppingcartRecipe,
+)
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     FavoriteRecipeSerializer,
@@ -137,4 +150,76 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(
             {"detail": "Рецепта нет в корзине"},
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def save_pdf(self, ingredients, current_user):
+        buffer = io.BytesIO()
+        fonts = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "font_files/",
+            "ArialRegular.ttf",
+        )
+        pdfmetrics.registerFont(ttfonts.TTFont("ArialRegular", fonts))
+        pdf = canvas.Canvas(buffer)
+        pdf.saveState()
+        pdf.setFont('ArialRegular', 24)
+        pdf.drawString(100, 742, "SHOP_LIST_TITLE")
+        pdf.setFont('ArialRegular', 12)
+        pdf.drawString(40, 500, "Пример текста")
+        pdf.showPage()
+        pdf.save()
+        # print( pdf._pagesize[1])
+        # p.saveState()
+        # p.setFont('ArialRegular', 24)
+        # p.drawString(108, p._pagesize[1] - 108, "SHOP_LIST_TITLE")
+        # p.setFont('ArialRegular', 12)
+        # page = 1
+        # n = 1
+        # # _page_create(p, page)
+        # for elem in ingredients:
+        #     p.drawString(108, p._pagesize[1] - 138 - n * 20 + (page - 1) * 600,
+        #                  f'{elem}')
+        #     n += 1
+        # p.save()
+        buffer.seek(0)
+        return buffer
+
+    # ================
+    # for ingredient in ingredients:
+    #     file.drawString(
+    #         100,
+    #         ingredient['ingredients__name'],
+    #         ingredient['ingredients__measurement_unit'],
+    #         ingredient['amount'],
+    #     )
+
+
+    @action(
+        detail=False,
+        methods=("GET",),
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def download_shopping_cart(self, request):
+        current_user = request.user
+        ingredients_in_shopping_cart = Recipe.objects.filter(
+            shopping_cart__shoppingcart=current_user
+        ).values_list("id", flat=True)
+        if not ingredients_in_shopping_cart.exists():
+            return Response(
+                {"detail": "Конзина с рецептами пуста"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        ingredients = (
+            IngredientRecipe.objects.filter(
+                recipe__in=ingredients_in_shopping_cart
+            )
+            .values("ingredients__name", "ingredients__measurement_unit")
+            .annotate(amount=Sum("amount"))
+        )
+
+        return FileResponse(
+            self.save_pdf(ingredients, current_user),
+            as_attachment=True,
+            filename=f"{current_user.username}_shop_cart.pdf",
+            status=status.HTTP_200_OK,
         )
