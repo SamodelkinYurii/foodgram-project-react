@@ -2,7 +2,7 @@ import io
 import os
 
 from django.db.models import Sum
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from reportlab.pdfbase import pdfmetrics, ttfonts
 from reportlab.pdfgen import canvas
@@ -10,7 +10,6 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
-from reportlab.lib.pagesizes import A4
 
 from .filters import RecipeFilter
 from .models import (
@@ -162,37 +161,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
         pdfmetrics.registerFont(ttfonts.TTFont("ArialRegular", fonts))
         pdf = canvas.Canvas(buffer)
         pdf.saveState()
-        pdf.setFont('ArialRegular', 24)
-        pdf.drawString(100, 742, "SHOP_LIST_TITLE")
-        pdf.setFont('ArialRegular', 12)
-        pdf.drawString(40, 500, "Пример текста")
+        pdf.setFont("ArialRegular", 24)
+        pdf.drawString(100, 742, "СПИСОК ПОКУПОК:")
+        pdf.setFont("ArialRegular", 14)
+        line = 712
+        n = 1
+        for ingredient in ingredients:
+            pdf.drawString(
+                100,
+                line,
+                f"{n}. {ingredient['ingredients__name']} - "
+                f"{ingredient['amount']} "
+                f"{ingredient['ingredients__measurement_unit']}",
+            )
+            line -= 20
+            n += 1
         pdf.showPage()
         pdf.save()
-        # print( pdf._pagesize[1])
-        # p.saveState()
-        # p.setFont('ArialRegular', 24)
-        # p.drawString(108, p._pagesize[1] - 108, "SHOP_LIST_TITLE")
-        # p.setFont('ArialRegular', 12)
-        # page = 1
-        # n = 1
-        # # _page_create(p, page)
-        # for elem in ingredients:
-        #     p.drawString(108, p._pagesize[1] - 138 - n * 20 + (page - 1) * 600,
-        #                  f'{elem}')
-        #     n += 1
-        # p.save()
         buffer.seek(0)
         return buffer
-
-    # ================
-    # for ingredient in ingredients:
-    #     file.drawString(
-    #         100,
-    #         ingredient['ingredients__name'],
-    #         ingredient['ingredients__measurement_unit'],
-    #         ingredient['amount'],
-    #     )
-
 
     @action(
         detail=False,
