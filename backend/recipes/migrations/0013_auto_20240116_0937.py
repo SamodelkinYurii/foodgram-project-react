@@ -4,23 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipes', '0012_auto_20240116_0919'),
+        ("recipes", "0012_auto_20240116_0919"),
     ]
 
     operations = [
         migrations.RemoveConstraint(
-            model_name='ingredientrecipe',
-            name='unique_recipe_ingredients',
+            model_name="ingredientrecipe",
+            name="unique_recipe_ingredients",
         ),
         migrations.RenameField(
-            model_name='ingredientrecipe',
-            old_name='ingredients',
-            new_name='ingredient',
+            model_name="ingredientrecipe",
+            old_name="ingredients",
+            new_name="ingredient",
         ),
         migrations.AddConstraint(
-            model_name='ingredientrecipe',
-            constraint=models.UniqueConstraint(fields=('recipe', 'ingredient'), name='unique_recipe_ingredient'),
+            model_name="ingredientrecipe",
+            constraint=models.UniqueConstraint(
+                fields=("recipe", "ingredient"),
+                name="unique_recipe_ingredient",
+            ),
         ),
     ]

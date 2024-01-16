@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     "django_filters",
     "api",
     "colorfield",
-    'import_export',
+    "import_export",
     "ingredients",
     "recipes",
     "tags",

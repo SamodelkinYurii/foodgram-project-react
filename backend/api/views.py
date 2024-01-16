@@ -99,17 +99,16 @@ class UserViewSet(UserViewSet):
                 {"detail": "Нельзя отписатся от несуществующего автора"},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        if check_user.exists():
-            if check_subscribe.exists():
-                check_subscribe.delete()
-                return Response(
-                    {"detail": "Вы отписались от автора"},
-                    status=status.HTTP_204_NO_CONTENT,
-                )
+        if check_subscribe.exists():
+            check_subscribe.delete()
             return Response(
-                {"detail": "Вы уже отписаны от автора"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"detail": "Вы отписались от автора"},
+                status=status.HTTP_204_NO_CONTENT,
             )
+        return Response(
+            {"detail": "Вы уже отписаны от автора"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     @action(
         detail=False,
@@ -270,7 +269,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 100,
                 line,
                 f"{n}. {ingredient['ingredient__name']} - "
-                f"{ingredient['amount']} "
+                f"{ingredient['sum_amount']} "
                 f"{ingredient['ingredient__measurement_unit']}",
             )
             line -= 20
@@ -300,7 +299,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe__in=ingredients_in_shopping_cart
             )
             .values("ingredient__name", "ingredient__measurement_unit")
-            .annotate(amount=Sum("amount"))
+            .annotate(sum_amount=Sum("amount"))
         )
 
         return FileResponse(

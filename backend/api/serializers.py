@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -12,6 +11,7 @@ from recipes.models import (
 )
 from tags.models import Tag
 from users.models import Subscribe, User
+from django.db import transaction
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -146,9 +146,12 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 
 
 class ReadRecipeSerializer(serializers.ModelSerializer):
-    tags = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True)
     author = UserSerializer(read_only=True)
-    ingredients = serializers.SerializerMethodField()
+    ingredients = IngredientRecipeSerializer(
+        many=True,
+        source="ingredientrecipe",
+    )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
@@ -166,15 +169,6 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
             "text",
             "cooking_time",
         )
-
-    def get_tags(self, obj):
-        recipe = get_object_or_404(Recipe, id=obj.id)
-        tags = recipe.tags.all()
-        return TagSerializer(tags, many=True).data
-
-    def get_ingredients(self, obj):
-        ingredients = IngredientRecipe.objects.filter(recipe_id=obj.id)
-        return IngredientRecipeSerializer(ingredients, many=True).data
 
     def get_is_favorited(self, obj):
         current_user = self.context["request"].user
@@ -223,35 +217,33 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         )
         return serializer.data
 
+    @staticmethod
+    def bulk_create_ingredientrecipe(ingredients_data, recipe):
+        IngredientRecipe.objects.bulk_create(
+            IngredientRecipe(
+                recipe=recipe,
+                ingredient=Ingredient.objects.get(id=data.get("id")),
+                amount=data["amount"],
+            )
+            for data in ingredients_data
+        )
+
     def create(self, validated_data):
         ingredients_data = validated_data.pop("ingredients")
         tags_data = validated_data.pop("tags")
         validated_data["author"] = self.context["request"].user
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags_data)
-
-        for data in ingredients_data:
-            IngredientRecipe.objects.create(
-                recipe=recipe,
-                ingredient=Ingredient.objects.get(id=data.get("id")),
-                amount=data.get("amount"),
-            )
+        self.bulk_create_ingredientrecipe(ingredients_data, recipe)
         return recipe
 
     def update(self, instance, validated_data):
         if instance.author != self.context["request"].user:
             raise AuthorPermissionDenied()
-        print(validated_data)
         if "ingredients" in validated_data:
             IngredientRecipe.objects.filter(recipe=instance).delete()
             ingredients_data = validated_data.pop("ingredients")
-
-            for data in ingredients_data:
-                IngredientRecipe.objects.create(
-                    recipe=instance,
-                    ingredient=Ingredient.objects.get(id=data.get("id")),
-                    amount=data.get("amount"),
-                )
+            self.bulk_create_ingredientrecipe(ingredients_data, instance)
         if "tags" in validated_data:
             tags_data = validated_data.pop("tags")
             instance.tags.set(tags_data)

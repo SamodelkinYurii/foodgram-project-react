@@ -48,6 +48,6 @@ class ProductAdmin(admin.ModelAdmin):
     def get_tags(self, obj):
         return [tag.name for tag in obj.tags.all()]
 
-    @admin.display(description='Рецепт в избранном')
+    @admin.display(description="Рецепт в избранном")
     def favorite(self, obj):
         return FavoriteRecipe.objects.filter(recipe=obj.id).count()
