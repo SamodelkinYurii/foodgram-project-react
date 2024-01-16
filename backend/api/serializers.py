@@ -1,5 +1,7 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator
 
 from api.exceptions import AuthorPermissionDenied
 from ingredients.models import Ingredient
@@ -11,7 +13,6 @@ from recipes.models import (
 )
 from tags.models import Tag
 from users.models import Subscribe, User
-from django.db import transaction
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -71,7 +72,15 @@ class SubscribeSerializer(UserSerializer):
 
     def validate(self, data):
         if data["user"] == data["subscriber"]:
-            raise serializers.ValidationError("Нельзя подписатся на себя")
+            raise serializers.ValidationError(
+                {"detail": "Нельзя подписатся на себя"}
+            )
+        if Subscribe.objects.filter(
+            user=data["user"], subscriber=data["subscriber"]
+        ).exists():
+            raise ValidationError(
+                {"detail": "Вы уже подписанны на данного автора"}
+            )
         return data
 
     def to_representation(self, instance):
@@ -247,12 +256,7 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         if "tags" in validated_data:
             tags_data = validated_data.pop("tags")
             instance.tags.set(tags_data)
-        instance.image = validated_data.get("image", instance.image)
-        instance.name = validated_data.get("name", instance.name)
-        instance.text = validated_data.get("text", instance.text)
-        instance.cooking_time = validated_data.get(
-            "cooking_time", instance.cooking_time
-        )
+        super(self.__class__, self).update(instance, validated_data)
         return instance
 
     def validate(self, data):
@@ -293,6 +297,13 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
             "recipe",
             "favorite",
         )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=FavoriteRecipe.objects.all(),
+                fields=("recipe", "favorite"),
+                message="Вы уже добавили рецепт в избранное",
+            )
+        ]
 
     def to_representation(self, instance):
         return ViewRecipeSerializerViewRecipeSerializer(
@@ -307,6 +318,13 @@ class ShoppingcartRecipeSerializer(serializers.ModelSerializer):
             "recipe",
             "shopping_cart",
         )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ShoppingcartRecipe.objects.all(),
+                fields=("recipe", "shopping_cart"),
+                message="Вы уже добавили рецепт в корзину",
+            )
+        ]
 
     def to_representation(self, instance):
         return ViewRecipeSerializerViewRecipeSerializer(

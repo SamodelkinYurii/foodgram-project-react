@@ -65,22 +65,13 @@ class UserViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         check_user = User.objects.filter(id=id)
-        current_user = self.request.user
-        check_subscribe = Subscribe.objects.filter(
-            user=current_user, subscriber=id
-        )
-        if check_subscribe.exists():
-            return Response(
-                {"detail": "Вы уже подписанны на данного автора"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
         if not check_user.exists():
             return Response(
                 {"detail": "Нельзя подписатся на несуществующего автора"},
                 status=status.HTTP_404_NOT_FOUND,
             )
         serializer = SubscribeSerializer(
-            data={"user": current_user.id, "subscriber": id},
+            data={"user": self.request.user.id, "subscriber": id},
             context={"request": request},
         )
         serializer.is_valid(raise_exception=True)
