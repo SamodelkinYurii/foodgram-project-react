@@ -128,12 +128,12 @@ class PostIngredientRecipeSerializer(serializers.ModelSerializer):
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
-        source="ingredients.id", queryset=Ingredient.objects.all()
+        source="ingredient.id", queryset=Ingredient.objects.all()
     )
     measurement_unit = serializers.CharField(
-        source="ingredients.measurement_unit", read_only=True
+        source="ingredient.measurement_unit", read_only=True
     )
-    name = serializers.CharField(source="ingredients.name", read_only=True)
+    name = serializers.CharField(source="ingredient.name", read_only=True)
 
     class Meta:
         model = IngredientRecipe
@@ -233,7 +233,7 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         for data in ingredients_data:
             IngredientRecipe.objects.create(
                 recipe=recipe,
-                ingredients=Ingredient.objects.get(id=data.get("id")),
+                ingredient=Ingredient.objects.get(id=data.get("id")),
                 amount=data.get("amount"),
             )
         return recipe
@@ -241,6 +241,7 @@ class ModRecipeSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if instance.author != self.context["request"].user:
             raise AuthorPermissionDenied()
+        print(validated_data)
         if "ingredients" in validated_data:
             IngredientRecipe.objects.filter(recipe=instance).delete()
             ingredients_data = validated_data.pop("ingredients")
@@ -248,7 +249,7 @@ class ModRecipeSerializer(serializers.ModelSerializer):
             for data in ingredients_data:
                 IngredientRecipe.objects.create(
                     recipe=instance,
-                    ingredients=Ingredient.objects.get(id=data.get("id")),
+                    ingredient=Ingredient.objects.get(id=data.get("id")),
                     amount=data.get("amount"),
                 )
         if "tags" in validated_data:

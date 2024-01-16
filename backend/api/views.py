@@ -269,9 +269,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             pdf.drawString(
                 100,
                 line,
-                f"{n}. {ingredient['ingredients__name']} - "
+                f"{n}. {ingredient['ingredient__name']} - "
                 f"{ingredient['amount']} "
-                f"{ingredient['ingredients__measurement_unit']}",
+                f"{ingredient['ingredient__measurement_unit']}",
             )
             line -= 20
             n += 1
@@ -299,7 +299,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             IngredientRecipe.objects.filter(
                 recipe__in=ingredients_in_shopping_cart
             )
-            .values("ingredients__name", "ingredients__measurement_unit")
+            .values("ingredient__name", "ingredient__measurement_unit")
             .annotate(amount=Sum("amount"))
         )
 
