@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Ingredient(models.Model):
-    """Модель ингридиента."""
+    """Модель ингредиента."""
 
     name = models.CharField(
         "Наименование",
@@ -22,8 +22,8 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        verbose_name = "Ингридиент"
-        verbose_name_plural = "Ингридиенты"
+        verbose_name = "Ингредиент"
+        verbose_name_plural = "Ингредиенты"
         ordering = ("name",)
 
     def __str__(self):

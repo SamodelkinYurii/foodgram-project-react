@@ -188,7 +188,7 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
         current_user = self.context["request"].user
         if not current_user.is_anonymous:
             return obj.shopping_cart.filter(
-                recipe=obj.id, shoppingcart=current_user
+                recipe=obj.id, shopping_cart=current_user
             ).exists()
         return False
 
@@ -312,7 +312,7 @@ class ShoppingcartRecipeSerializer(serializers.ModelSerializer):
         model = ShoppingcartRecipe
         fields = (
             "recipe",
-            "shoppingcart",
+            "shopping_cart",
         )
 
     def to_representation(self, instance):

@@ -18,13 +18,14 @@ class Recipe(models.Model):
 
     author = models.ForeignKey(
         User,
+        verbose_name="Авторы",
         related_name="recipes",
         on_delete=models.CASCADE,
     )
 
     ingredients = models.ManyToManyField(
         Ingredient,
-        verbose_name="Ингридиенты",
+        verbose_name="Ингредиенты",
         related_name="recipes",
         through="IngredientRecipe",
     )
@@ -144,7 +145,7 @@ class ShoppingcartRecipe(models.Model):
         verbose_name="Рецепт",
     )
 
-    shoppingcart = models.ForeignKey(
+    shopping_cart = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="shopping_cart",
@@ -156,8 +157,8 @@ class ShoppingcartRecipe(models.Model):
         verbose_name_plural = "Рецепты в корзинах"
         constraints = [
             models.UniqueConstraint(
-                fields=["recipe", "shoppingcart"],
-                name="unique_recipe_shoppingcart",
+                fields=["recipe", "shopping_cart"],
+                name="unique_recipe_shopping_cart",
             ),
         ]
 

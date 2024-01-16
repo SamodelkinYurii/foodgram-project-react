@@ -149,7 +149,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             (is_in_shopping_cart == "1", self.request.user.is_authenticated)
         ):
             return Recipe.objects.filter(
-                shopping_cart__shoppingcart=current_user.id
+                shopping_cart__shopping_cart=current_user.id
             )
         return super().get_queryset()
 
@@ -212,7 +212,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk):
         current_user = self.request.user
         check_shopping_car = ShoppingcartRecipe.objects.filter(
-            recipe=pk, shoppingcart=current_user
+            recipe=pk, shopping_cart=current_user
         )
         if check_shopping_car.exists():
             return Response(
@@ -220,7 +220,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         serializer = ShoppingcartRecipeSerializer(
-            data={"recipe": pk, "shoppingcart": current_user.id},
+            data={"recipe": pk, "shopping_cart": current_user.id},
             context={"request": request},
         )
         serializer.is_valid(raise_exception=True)
@@ -232,7 +232,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         check_recipe = Recipe.objects.filter(id=pk)
         current_user = self.request.user
         check_favorite = ShoppingcartRecipe.objects.filter(
-            recipe=pk, shoppingcart=current_user.id
+            recipe=pk, shopping_cart=current_user.id
         )
         if not check_recipe.exists():
             return Response(
@@ -288,7 +288,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         current_user = request.user
         ingredients_in_shopping_cart = Recipe.objects.filter(
-            shopping_cart__shoppingcart=current_user
+            shopping_cart__shopping_cart=current_user
         ).values_list("id", flat=True)
         if not ingredients_in_shopping_cart.exists():
             return Response(
