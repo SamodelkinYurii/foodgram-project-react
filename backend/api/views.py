@@ -134,7 +134,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if all(
             (is_favorited_param == "1", self.request.user.is_authenticated)
         ):
-            return Recipe.objects.filter(favorite__favorite=current_user.id)
+            return Recipe.objects.filter(favorite__user=current_user.id)
         elif all(
             (is_in_shopping_cart == "1", self.request.user.is_authenticated)
         ):
@@ -148,35 +148,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return ReadRecipeSerializer
         return ModRecipeSerializer
 
-    @action(
-        detail=True,
-        methods=("POST",),
-        permission_classes=[permissions.IsAuthenticated],
-    )
-    def favorite(self, request, pk):
-        current_user = self.request.user
-        check_favorite = FavoriteRecipe.objects.filter(
-            recipe=pk, favorite=current_user
-        )
-        if check_favorite.exists():
-            return Response(
-                {"detail": "Вы уже добавили рецепт в избранное"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        serializer = FavoriteRecipeSerializer(
-            data={"recipe": pk, "favorite": current_user.id},
+    @staticmethod
+    def add(serializ, request, pk):
+        current_user = request.user
+        serializer = serializ(
+            data={"recipe": pk, "user": current_user.id},
             context={"request": request},
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @favorite.mapping.delete
-    def delete_favorite(self, request, pk):
+    
+    @staticmethod
+    def delete1(model, request, pk):
         check_recipe = Recipe.objects.filter(id=pk)
-        current_user = self.request.user
-        check_favorite = FavoriteRecipe.objects.filter(
-            recipe=pk, favorite=current_user.id
+        # current_user = self.request.user
+        check_favorite = model.objects.filter(
+            recipe=pk, user=request.user.id
         )
         if not check_recipe.exists():
             return Response(
@@ -193,6 +181,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
             {"detail": "Рецепта нет в избранном"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+    @action(
+        detail=True,
+        methods=("POST", "DELETE"),
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def favorite(self, request, pk):
+        if request.method == 'POST':
+            return self.add(FavoriteRecipeSerializer, request, pk)
+        else:
+            return self.delete1(FavoriteRecipe, request, pk)
 
     @action(
         detail=True,

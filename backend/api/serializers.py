@@ -183,7 +183,7 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
         current_user = self.context["request"].user
         if not current_user.is_anonymous:
             return obj.favorite.filter(
-                recipe=obj.id, favorite=current_user
+                recipe=obj.id, user=current_user
             ).exists()
         return False
 
@@ -295,12 +295,12 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         model = FavoriteRecipe
         fields = (
             "recipe",
-            "favorite",
+            "user",
         )
         validators = [
             UniqueTogetherValidator(
                 queryset=FavoriteRecipe.objects.all(),
-                fields=("recipe", "favorite"),
+                fields=("recipe", "user"),
                 message="Вы уже добавили рецепт в избранное",
             )
         ]

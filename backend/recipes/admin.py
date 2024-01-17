@@ -12,7 +12,7 @@ from .models import (
 class FavoriteRecipeAdmin(admin.ModelAdmin):
     list_display = (
         "recipe",
-        "favorite",
+        "user",
     )
 
 
