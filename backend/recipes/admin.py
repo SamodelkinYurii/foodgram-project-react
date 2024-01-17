@@ -46,7 +46,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     @admin.display(description="tags")
     def get_tags(self, obj):
-        return [tag.name for tag in obj.tags.all()]
+        return ", ".join(list(obj.tags.values_list("name", flat=True)))
 
     @admin.display(description="Рецепт в избранном")
     def favorite(self, obj):

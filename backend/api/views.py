@@ -154,8 +154,8 @@ class RecipeViewSet(AddDelMixin, viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         if request.method == "POST":
-            return self.fsc_add(FavoriteRecipeSerializer, request, pk)
-        return self.fsc_del(FavoriteRecipe, request, pk, "favorite")
+            return self.create_entry(FavoriteRecipeSerializer, request, pk)
+        return self.delete_entry(FavoriteRecipe, request, pk, "favorite")
 
     @action(
         detail=True,
@@ -164,8 +164,10 @@ class RecipeViewSet(AddDelMixin, viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, pk):
         if request.method == "POST":
-            return self.fsc_add(ShoppingcartRecipeSerializer, request, pk)
-        return self.fsc_del(ShoppingcartRecipe, request, pk, "shopping_cart")
+            return self.create_entry(ShoppingcartRecipeSerializer, request, pk)
+        return self.delete_entry(
+            ShoppingcartRecipe, request, pk, "shopping_cart"
+        )
 
     def save_pdf(self, ingredients, current_user):
         buffer = io.BytesIO()

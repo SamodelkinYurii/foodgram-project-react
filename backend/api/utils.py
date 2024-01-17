@@ -6,7 +6,7 @@ from recipes.models import Recipe
 
 class AddDelMixin:
     @staticmethod
-    def fsc_add(serializ, request, pk):
+    def create_entry(serializ, request, pk):
         current_user = request.user
         serializer = serializ(
             data={"recipe": pk, "user": current_user.id},
@@ -17,7 +17,7 @@ class AddDelMixin:
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
-    def fsc_del(model, request, pk, fsc_metod):
+    def delete_entry(model, request, pk, fsc_metod):
         check_recipe = Recipe.objects.filter(id=pk)
         check_favorite = model.objects.filter(recipe=pk, user=request.user.id)
         if not check_recipe.exists():

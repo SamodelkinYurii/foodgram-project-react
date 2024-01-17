@@ -3,7 +3,6 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
-from api.exceptions import AuthorPermissionDenied
 from ingredients.models import Ingredient
 from recipes.models import (
     FavoriteRecipe,
@@ -227,11 +226,11 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         return serializer.data
 
     @staticmethod
-    def bulk_create_ingredientrecipe(ingredients_data, recipe):
+    def create_ingredients(ingredients_data, recipe):
         IngredientRecipe.objects.bulk_create(
             IngredientRecipe(
                 recipe=recipe,
-                ingredient=Ingredient.objects.get(id=data.get("id")),
+                ingredient_id=data.get("id"),
                 amount=data["amount"],
             )
             for data in ingredients_data
@@ -243,20 +242,18 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         validated_data["author"] = self.context["request"].user
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags_data)
-        self.bulk_create_ingredientrecipe(ingredients_data, recipe)
+        self.create_ingredients(ingredients_data, recipe)
         return recipe
 
     def update(self, instance, validated_data):
-        if instance.author != self.context["request"].user:
-            raise AuthorPermissionDenied()
         if "ingredients" in validated_data:
             IngredientRecipe.objects.filter(recipe=instance).delete()
             ingredients_data = validated_data.pop("ingredients")
-            self.bulk_create_ingredientrecipe(ingredients_data, instance)
+            self.create_ingredients(ingredients_data, instance)
         if "tags" in validated_data:
             tags_data = validated_data.pop("tags")
             instance.tags.set(tags_data)
-        super(self.__class__, self).update(instance, validated_data)
+        super()
         return instance
 
     def validate(self, data):
