@@ -191,7 +191,7 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
         current_user = self.context["request"].user
         if not current_user.is_anonymous:
             return obj.shopping_cart.filter(
-                recipe=obj.id, shopping_cart=current_user
+                recipe=obj.id, user=current_user
             ).exists()
         return False
 
@@ -316,12 +316,12 @@ class ShoppingcartRecipeSerializer(serializers.ModelSerializer):
         model = ShoppingcartRecipe
         fields = (
             "recipe",
-            "shopping_cart",
+            "user",
         )
         validators = [
             UniqueTogetherValidator(
                 queryset=ShoppingcartRecipe.objects.all(),
-                fields=("recipe", "shopping_cart"),
+                fields=("recipe", "user"),
                 message="Вы уже добавили рецепт в корзину",
             )
         ]

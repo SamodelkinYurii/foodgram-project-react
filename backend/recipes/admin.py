@@ -20,7 +20,7 @@ class FavoriteRecipeAdmin(admin.ModelAdmin):
 class ShoppingcartRecipeAdmin(admin.ModelAdmin):
     list_display = (
         "recipe",
-        "shopping_cart",
+        "user",
     )
 
 

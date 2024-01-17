@@ -127,7 +127,7 @@ class FavoriteRecipe(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["recipe", "user"],
-                name="unique_recipe_user",
+                name="unique_recipe_favorite",
             ),
         ]
 
@@ -143,7 +143,7 @@ class ShoppingcartRecipe(models.Model):
         verbose_name="Рецепт",
     )
 
-    shopping_cart = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="shopping_cart",
@@ -155,10 +155,10 @@ class ShoppingcartRecipe(models.Model):
         verbose_name_plural = "Рецепты в корзинах"
         constraints = [
             models.UniqueConstraint(
-                fields=["recipe", "shopping_cart"],
+                fields=["recipe", "user"],
                 name="unique_recipe_shopping_cart",
             ),
         ]
 
     def __str__(self):
-        return f"{self.shopping_cart} {self.recipe}"
+        return f"{self.user} {self.recipe}"
