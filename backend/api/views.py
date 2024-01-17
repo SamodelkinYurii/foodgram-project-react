@@ -25,6 +25,7 @@ from api.serializers import (
     TagSerializer,
     UserSerializer,
 )
+from api.utils import AddDelMixin
 from ingredients.models import Ingredient
 from recipes.models import (
     FavoriteRecipe,
@@ -116,7 +117,7 @@ class UserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(AddDelMixin, viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
@@ -138,9 +139,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         elif all(
             (is_in_shopping_cart == "1", self.request.user.is_authenticated)
         ):
-            return Recipe.objects.filter(
-                shopping_cart__user=current_user.id
-            )
+            return Recipe.objects.filter(shopping_cart__user=current_user.id)
         return super().get_queryset()
 
     def get_serializer_class(self):
@@ -148,96 +147,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return ReadRecipeSerializer
         return ModRecipeSerializer
 
-    @staticmethod
-    def add(serializ, request, pk):
-        current_user = request.user
-        serializer = serializ(
-            data={"recipe": pk, "user": current_user.id},
-            context={"request": request},
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    @staticmethod
-    def delete1(model, request, pk):
-        check_recipe = Recipe.objects.filter(id=pk)
-        # current_user = self.request.user
-        check_favorite = model.objects.filter(
-            recipe=pk, user=request.user.id
-        )
-        if not check_recipe.exists():
-            return Response(
-                {"detail": "Несуществующий рецепт"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        if check_favorite.exists():
-            check_favorite.delete()
-            return Response(
-                {"detail": "Рецепт удален из избранного"},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-        return Response(
-            {"detail": "Рецепта нет в избранном"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
     @action(
         detail=True,
         methods=("POST", "DELETE"),
         permission_classes=[permissions.IsAuthenticated],
     )
     def favorite(self, request, pk):
-        if request.method == 'POST':
-            return self.add(FavoriteRecipeSerializer, request, pk)
-        else:
-            return self.delete1(FavoriteRecipe, request, pk)
+        if request.method == "POST":
+            return self.fsc_add(FavoriteRecipeSerializer, request, pk)
+        return self.fsc_del(FavoriteRecipe, request, pk, "favorite")
 
     @action(
         detail=True,
-        methods=("POST",),
+        methods=("POST", "DELETE"),
         permission_classes=[permissions.IsAuthenticated],
     )
     def shopping_cart(self, request, pk):
-        current_user = self.request.user
-        check_shopping_car = ShoppingcartRecipe.objects.filter(
-            recipe=pk, user=current_user
-        )
-        if check_shopping_car.exists():
-            return Response(
-                {"detail": "Вы уже добавили рецепт в корзину"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        serializer = ShoppingcartRecipeSerializer(
-            data={"recipe": pk, "user": current_user.id},
-            context={"request": request},
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @shopping_cart.mapping.delete
-    def delete_shopping_cart(self, request, pk):
-        check_recipe = Recipe.objects.filter(id=pk)
-        current_user = self.request.user
-        check_favorite = ShoppingcartRecipe.objects.filter(
-            recipe=pk, user=current_user.id
-        )
-        if not check_recipe.exists():
-            return Response(
-                {"detail": "Нельзя убрать из корзины несуществующий рецепт"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        if check_favorite.exists():
-            check_favorite.delete()
-            return Response(
-                {"detail": "Рецепт удален из корзины"},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-        return Response(
-            {"detail": "Рецепта нет в корзине"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        if request.method == "POST":
+            return self.fsc_add(ShoppingcartRecipeSerializer, request, pk)
+        return self.fsc_del(ShoppingcartRecipe, request, pk, "shopping_cart")
 
     def save_pdf(self, ingredients, current_user):
         buffer = io.BytesIO()
