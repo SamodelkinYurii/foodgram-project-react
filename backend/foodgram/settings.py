@@ -67,24 +67,35 @@ TEMPLATES = [
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
 
-if os.getenv("USE_SQLITE", "True") == "True":
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
+# if os.getenv("USE_SQLITE", "True") == "True":
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.sqlite3",
+#             "NAME": BASE_DIR / "db.sqlite3",
+#         }
+#     }
+# else:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.postgresql",
+#             "NAME": os.getenv("POSTGRES_DB", "django"),
+#             "USER": os.getenv("POSTGRES_USER", "django"),
+#             "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+#             "HOST": os.getenv("DB_HOST", ""),
+#             "PORT": os.getenv("DB_PORT", 5432),
+#         }
+#     }
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "django"),
+        "USER": os.getenv("POSTGRES_USER", "django"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", ""),
+        "PORT": os.getenv("DB_PORT", 5432),
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv("POSTGRES_DB", "django"),
-            "USER": os.getenv("POSTGRES_USER", "django"),
-            "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-            "HOST": os.getenv("DB_HOST", ""),
-            "PORT": os.getenv("DB_PORT", 5432),
-        }
-    }
+}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -113,13 +124,18 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = "/static/"
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'collected_static'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/media'
 
-STATIC_ROOT = BASE_DIR / "static"
+# STATIC_URL = "/static/"
 
-MEDIA_URL = "/media/"
+# STATIC_ROOT = BASE_DIR / "static"
 
-MEDIA_ROOT = BASE_DIR / "media"
+# MEDIA_URL = "/media/"
+
+# MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
