@@ -35,6 +35,7 @@ from recipes.models import (
 )
 from tags.models import Tag
 from users.models import Subscribe, User
+from api.pagination import CustomPagination
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -118,7 +119,7 @@ class UserViewSet(UserViewSet):
 
 
 class RecipeViewSet(AddDelMixin, viewsets.ModelViewSet):
-    pagination_class = LimitOffsetPagination
+    pagination_class = CustomPagination
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter

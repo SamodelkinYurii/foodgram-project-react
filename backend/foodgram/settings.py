@@ -10,7 +10,7 @@ load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = os.getenv("DEBUG", False) == "True"
+DEBUG = os.getenv("DEBUG", False) == "False"
 
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOST", default="127.0.0.1, localhost"
@@ -135,7 +135,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
-    "PAGE_SIZE": 10,
+    "PAGE_SIZE": 6,
 }
 
 
