@@ -263,10 +263,6 @@ class ModRecipeSerializer(serializers.ModelSerializer):
             )
         if not tags:
             raise serializers.ValidationError("Поле tags не может быть пустым")
-        if not data.get("image"):
-            raise serializers.ValidationError(
-                "Поле image не может быть пустым"
-            )
         if len(tags) != len(set(tags)):
             raise serializers.ValidationError(
                 "Поле tags не может дублироватся"
