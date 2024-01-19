@@ -1,5 +1,4 @@
 from drf_extra_fields.fields import Base64ImageField
-from drf_extra_fields.fields import Base64ImageField as DRF_Base64ImageField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
@@ -14,11 +13,6 @@ from recipes.models import (
 from tags.models import Tag
 from users.models import Subscribe, User
 
-class Base64ImageField(DRF_Base64ImageField):
-    """ Описание поля для кодорования изображения в Base64. """
-
-    def to_representation(self, image):
-        return image.url
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
