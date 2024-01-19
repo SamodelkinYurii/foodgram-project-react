@@ -203,7 +203,7 @@ class ModRecipeSerializer(serializers.ModelSerializer):
         many=True,
     )
     ingredients = PostIngredientRecipeSerializer(many=True)
-    image = Base64ImageField(required=True)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe

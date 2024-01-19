@@ -13,6 +13,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from api.filters import IngredientSearchFilter, RecipeFilter
+from api.pagination import CustomPagination
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (
     FavoriteRecipeSerializer,
@@ -35,7 +36,6 @@ from recipes.models import (
 )
 from tags.models import Tag
 from users.models import Subscribe, User
-from api.pagination import CustomPagination
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

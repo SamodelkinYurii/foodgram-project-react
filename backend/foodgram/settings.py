@@ -10,7 +10,7 @@ load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = os.getenv("DEBUG", False) == "False"
+DEBUG = os.getenv("DEBUG", default=False)
 
 # ALLOWED_HOSTS = os.getenv(
 #     "ALLOWED_HOST", default="127.0.0.1, localhost"
@@ -47,6 +47,32 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend"
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+    "PAGE_SIZE": 6,
+}
+
+DJOSER = {
+    "HIDE_USERS": False,
+    "LOGIN_FIELD": "email",
+    "SERIALIZERS": {
+        "user": "api.serializers.UserSerializer",
+        "current_user": "api.serializers.UserSerializer",
+    },
+    "PERMISSIONS": {
+        "user": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
+        "user_list": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
+    },
+}
+
 ROOT_URLCONF = "foodgram.urls"
 
 TEMPLATES = [
@@ -68,36 +94,24 @@ TEMPLATES = [
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
 
-# if os.getenv("USE_SQLITE", "True") == "True":
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.sqlite3",
-#             "NAME": BASE_DIR / "db.sqlite3",
-#         }
-#     }
-# else:
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.postgresql",
-#             "NAME": os.getenv("POSTGRES_DB", "django"),
-#             "USER": os.getenv("POSTGRES_USER", "django"),
-#             "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-#             "HOST": os.getenv("DB_HOST", ""),
-#             "PORT": os.getenv("DB_PORT", 5432),
-#         }
-#     }
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB", "django"),
-        "USER": os.getenv("POSTGRES_USER", "django"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-        "HOST": os.getenv("DB_HOST", ""),
-        "PORT": os.getenv("DB_PORT", 5432),
+if os.getenv("USE_SQLITE", "True") == "True":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
-
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("POSTGRES_DB", "django"),
+            "USER": os.getenv("POSTGRES_USER", "django"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", ""),
+            "PORT": os.getenv("DB_PORT", 5432),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -125,46 +139,14 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'collected_static'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = '/media'
+STATIC_URL = "/static/"
 
-# STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static"
 
-# STATIC_ROOT = BASE_DIR / "static"
+MEDIA_URL = "/media/"
 
-# MEDIA_URL = "/media/"
-
-# MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
-
-REST_FRAMEWORK = {
-    "DEFAULT_FILTER_BACKENDS": [
-        "django_filters.rest_framework.DjangoFilterBackend"
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
-    ],
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication",
-    ],
-    "PAGE_SIZE": 6,
-}
-
-
-DJOSER = {
-    "HIDE_USERS": False,
-    "LOGIN_FIELD": "email",
-    "SERIALIZERS": {
-        "user": "api.serializers.UserSerializer",
-        "current_user": "api.serializers.UserSerializer",
-    },
-    "PERMISSIONS": {
-        "user": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
-        "user_list": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
-    },
-}
